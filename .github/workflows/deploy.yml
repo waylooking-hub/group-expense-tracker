@@ -18,12 +18,16 @@ jobs:
         with:
           node-version: '20'
       - run: npm install --global vercel@latest
-      - name: Link to existing project
+      - name: Link to project
         run: vercel link --yes --project group-expense-tracker --token=$VERCEL_TOKEN
-      - name: Set env vars
+      - name: Fix root directory
         run: |
-          echo "${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" | vercel env add NEXT_PUBLIC_SUPABASE_URL production --yes --token=$VERCEL_TOKEN 2>/dev/null || true
-          echo "${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" | vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY production --yes --token=$VERCEL_TOKEN 2>/dev/null || true
+          PROJECT_ID=$(cat .vercel/project.json | python3 -c "import sys,json; print(json.load(sys.stdin)['projectId'])")
+          echo "Project ID: $PROJECT_ID"
+          curl -s -X PATCH "https://api.vercel.com/v9/projects/$PROJECT_ID" \
+            -H "Authorization: Bearer $VERCEL_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"rootDirectory": null}' | python3 -c "import sys,json; d=json.load(sys.stdin); print('Root dir set to:', d.get('rootDirectory', 'null'))"
       - name: Deploy to production
         run: vercel deploy --prod --yes --token=$VERCEL_TOKEN 2>&1 | tee /tmp/deploy.log
       - name: Report result
@@ -33,10 +37,10 @@ jobs:
           script: |
             const fs = require('fs');
             const log = fs.readFileSync('/tmp/deploy.log', 'utf8');
-            const urls = log.match(/https:\/\/[a-z0-9-]+\.vercel\.app/g) || [];
+            const urls = log.match(/https:\/\/[a-z0-9.-]+\.vercel\.app/g) || [];
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: 'Deploy #' + context.runNumber,
-              body: `URLs: ${urls.join(', ') || 'none found'}\n\n\`\`\`\n${log.slice(-2000)}\n\`\`\``
+              body: `URLs: ${urls.join(', ') || 'none'}\n\n\`\`\`\n${log.slice(-2000)}\n\`\`\``
             });
