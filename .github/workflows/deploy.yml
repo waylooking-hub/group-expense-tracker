@@ -20,6 +20,22 @@ jobs:
       - name: Pull Vercel config
         run: vercel pull --yes --environment=production --token=$VERCEL_TOKEN
       - name: Build with Vercel
-        run: vercel build --prod --token=$VERCEL_TOKEN
+        id: build
+        continue-on-error: true
+        run: vercel build --prod --token=$VERCEL_TOKEN 2>&1 | tee /tmp/build.log
+      - name: Report build error
+        if: steps.build.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BODY=$(tail -50 /tmp/build.log | head -c 3000)
+          gh issue create --title "Vercel build failed" --body "$(cat <<HEREDOC
+          \`\`\`
+          $BODY
+          \`\`\`
+          HEREDOC
+          )" --repo ${{ github.repository }}
+          exit 1
       - name: Deploy
+        if: steps.build.outcome == 'success'
         run: vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
