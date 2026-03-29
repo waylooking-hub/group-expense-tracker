@@ -21,7 +21,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const saved = localStorage.getItem('lang') as Lang | null;
-    if (saved === 'en' || saved === 'pl') {
+    if (saved === 'en' || saved === 'pl' || saved === 'uk') {
       setLangState(saved);
     }
   }, []);

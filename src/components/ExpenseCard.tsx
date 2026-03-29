@@ -10,7 +10,7 @@ interface ExpenseCardProps {
 
 export default function ExpenseCard({ expense }: ExpenseCardProps) {
   const { t, lang } = useI18n();
-  const locale = lang === 'pl' ? 'pl-PL' : 'en-GB';
+  const locale = lang === 'pl' ? 'pl-PL' : lang === 'uk' ? 'uk-UA' : 'en-GB';
 
   const date = new Date(expense.created_at).toLocaleDateString(locale, {
     day: 'numeric',
