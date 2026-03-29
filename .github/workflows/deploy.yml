@@ -3,6 +3,10 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -14,9 +18,15 @@ jobs:
         with:
           node-version: '20'
       - run: npm install --global vercel@latest
+      - name: Link to existing project
+        run: vercel link --yes --project group-expense-tracker --token=$VERCEL_TOKEN
+      - name: Set env vars
+        run: |
+          echo "${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" | vercel env add NEXT_PUBLIC_SUPABASE_URL production --yes --token=$VERCEL_TOKEN 2>/dev/null || true
+          echo "${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" | vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY production --yes --token=$VERCEL_TOKEN 2>/dev/null || true
       - name: Deploy to production
         run: vercel deploy --prod --yes --token=$VERCEL_TOKEN 2>&1 | tee /tmp/deploy.log
-      - name: Report URL
+      - name: Report result
         if: always()
         uses: actions/github-script@v7
         with:
@@ -24,10 +34,9 @@ jobs:
             const fs = require('fs');
             const log = fs.readFileSync('/tmp/deploy.log', 'utf8');
             const urls = log.match(/https:\/\/[a-z0-9-]+\.vercel\.app/g) || [];
-            const allOutput = log.slice(-3000);
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: 'Deploy result - Run #' + context.runNumber,
-              body: `## URLs found\n${urls.map(u => '- ' + u).join('\n') || 'None'}\n\n## Full output\n\`\`\`\n${allOutput}\n\`\`\``
+              title: 'Deploy #' + context.runNumber,
+              body: `URLs: ${urls.join(', ') || 'none found'}\n\n\`\`\`\n${log.slice(-2000)}\n\`\`\``
             });
