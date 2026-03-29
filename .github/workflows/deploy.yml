@@ -8,6 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -15,9 +17,9 @@ jobs:
           node-version: '20'
       - run: npm ci
       - run: npm install --global vercel@latest
-      - name: Set Vercel env vars
-        run: |
-          echo "${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" | vercel env add NEXT_PUBLIC_SUPABASE_URL production --yes --token=$VERCEL_TOKEN 2>/dev/null || true
-          echo "${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" | vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY production --yes --token=$VERCEL_TOKEN 2>/dev/null || true
+      - name: Pull Vercel config
+        run: vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+      - name: Build with Vercel
+        run: vercel build --prod --token=$VERCEL_TOKEN
       - name: Deploy
-        run: vercel --prod --yes --token=$VERCEL_TOKEN
+        run: vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
