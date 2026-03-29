@@ -17,9 +17,5 @@ jobs:
           node-version: '20'
       - run: npm ci
       - run: npm install --global vercel@latest
-      - name: Pull Vercel config
-        run: vercel pull --yes --environment=production --token=$VERCEL_TOKEN
-      - name: Build
-        run: vercel build --prod --token=$VERCEL_TOKEN
       - name: Deploy
-        run: vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
+        run: vercel --prod --yes --token=$VERCEL_TOKEN
