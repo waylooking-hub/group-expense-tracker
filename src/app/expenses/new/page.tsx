@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navigation from '@/components/Navigation';
 import CurrencySelector from '@/components/CurrencySelector';
+import { useI18n } from '@/lib/i18n-context';
 import type { Member } from '@/types';
 
 export default function NewExpensePage() {
   const router = useRouter();
+  const { t } = useI18n();
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -68,7 +70,7 @@ export default function NewExpensePage() {
         setError(data.error || 'Failed to add expense');
       }
     } catch {
-      setError('Connection error');
+      setError(t('error.connection'));
     } finally {
       setSubmitting(false);
     }
@@ -77,7 +79,7 @@ export default function NewExpensePage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-500">Loading...</p>
+        <p className="text-gray-500">{t('loading')}</p>
       </div>
     );
   }
@@ -86,7 +88,7 @@ export default function NewExpensePage() {
     <div className="min-h-screen bg-gray-50 pb-20">
       <header className="bg-white border-b border-gray-200 px-4 py-4">
         <div className="max-w-lg mx-auto">
-          <h1 className="text-xl font-bold text-gray-900">Add Expense</h1>
+          <h1 className="text-xl font-bold text-gray-900">{t('expense.addTitle')}</h1>
         </div>
       </header>
 
@@ -94,7 +96,7 @@ export default function NewExpensePage() {
         <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 space-y-4">
           {/* Amount + Currency */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('expense.amount')}</label>
             <div className="flex gap-2">
               <input
                 type="number"
@@ -113,12 +115,12 @@ export default function NewExpensePage() {
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('expense.description')}</label>
             <input
               type="text"
               value={description}
               onChange={e => setDescription(e.target.value)}
-              placeholder="Dinner, taxi, groceries..."
+              placeholder={t('expense.descPlaceholder')}
               className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
@@ -126,7 +128,7 @@ export default function NewExpensePage() {
 
           {/* Paid By */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Paid by</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('expense.paidBy')}</label>
             <select
               value={paidBy}
               onChange={e => setPaidBy(e.target.value)}
@@ -142,7 +144,7 @@ export default function NewExpensePage() {
           {/* Receipt */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Receipt photo (optional)
+              {t('expense.receipt')}
             </label>
             <input
               type="file"
@@ -160,7 +162,7 @@ export default function NewExpensePage() {
             disabled={submitting || !amount || !description || !paidBy}
             className="w-full bg-blue-600 text-white rounded-lg py-3 font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
           >
-            {submitting ? 'Adding...' : 'Add Expense'}
+            {submitting ? t('expense.adding') : t('expense.submit')}
           </button>
         </form>
       </main>

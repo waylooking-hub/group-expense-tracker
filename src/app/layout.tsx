@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { I18nProvider } from "@/lib/i18n-context";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,8 +19,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="uk" className="h-full">
-      <body className="min-h-full font-sans antialiased">{children}</body>
+    <html lang="en" className="h-full">
+      <body className="min-h-full font-sans antialiased">
+        <I18nProvider>{children}</I18nProvider>
+      </body>
     </html>
   );
 }
