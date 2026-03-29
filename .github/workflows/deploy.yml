@@ -15,28 +15,19 @@ jobs:
           node-version: '20'
       - run: npm install --global vercel@latest
       - name: Deploy to production
-        id: deploy
-        continue-on-error: true
         run: vercel deploy --prod --yes --token=$VERCEL_TOKEN 2>&1 | tee /tmp/deploy.log
-      - name: Show result
+      - name: Report URL
         if: always()
-        run: cat /tmp/deploy.log | tail -30
-      - name: Report error
-        if: steps.deploy.outcome == 'failure'
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            const log = fs.readFileSync('/tmp/deploy.log', 'utf8').slice(-2000);
+            const log = fs.readFileSync('/tmp/deploy.log', 'utf8');
+            const urls = log.match(/https:\/\/[a-z0-9-]+\.vercel\.app/g) || [];
+            const allOutput = log.slice(-3000);
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: 'Deploy error log',
-              body: '```\n' + log + '\n```'
+              title: 'Deploy result - Run #' + context.runNumber,
+              body: `## URLs found\n${urls.map(u => '- ' + u).join('\n') || 'None'}\n\n## Full output\n\`\`\`\n${allOutput}\n\`\`\``
             });
-            core.setFailed('Deploy failed');
-      - name: Check success
-        if: steps.deploy.outcome == 'success'
-        run: |
-          URL=$(grep -oP 'https://[a-z0-9-]+\.vercel\.app' /tmp/deploy.log | tail -1 || echo "URL not found")
-          echo "Deployed to: $URL"
