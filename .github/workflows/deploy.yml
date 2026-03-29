@@ -8,26 +8,19 @@ jobs:
     runs-on: ubuntu-latest
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: npm ci
       - run: npm install --global vercel@latest
-      - name: Pull Vercel config
-        run: vercel pull --yes --environment=production --token=$VERCEL_TOKEN
-      - name: Build
-        run: vercel build --prod --token=$VERCEL_TOKEN
-      - name: List output
-        if: always()
-        run: ls -la .vercel/output/ 2>/dev/null || echo "No .vercel/output"
-      - name: Deploy
+      - name: Deploy to production
         id: deploy
         continue-on-error: true
-        run: vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN 2>&1 | tee /tmp/deploy.log
+        run: vercel deploy --prod --yes --token=$VERCEL_TOKEN 2>&1 | tee /tmp/deploy.log
+      - name: Show result
+        if: always()
+        run: cat /tmp/deploy.log | tail -30
       - name: Report error
         if: steps.deploy.outcome == 'failure'
         uses: actions/github-script@v7
@@ -42,3 +35,8 @@ jobs:
               body: '```\n' + log + '\n```'
             });
             core.setFailed('Deploy failed');
+      - name: Check success
+        if: steps.deploy.outcome == 'success'
+        run: |
+          URL=$(grep -oP 'https://[a-z0-9-]+\.vercel\.app' /tmp/deploy.log | tail -1 || echo "URL not found")
+          echo "Deployed to: $URL"
