@@ -1,7 +1,6 @@
 'use client';
 
 import { formatAmount } from '@/lib/currencies';
-import { useI18n } from '@/lib/i18n-context';
 import type { Settlement } from '@/types';
 
 interface SettlementListProps {
@@ -9,12 +8,10 @@ interface SettlementListProps {
 }
 
 export default function SettlementList({ settlements }: SettlementListProps) {
-  const { t } = useI18n();
-
   if (settlements.length === 0) {
     return (
       <p className="text-gray-500 text-sm text-center py-4">
-        {t('dashboard.allSettled')}
+        All settled up!
       </p>
     );
   }

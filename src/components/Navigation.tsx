@@ -2,18 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useI18n } from '@/lib/i18n-context';
-import type { TranslationKey } from '@/lib/i18n';
 
-const NAV_ITEMS: { href: string; labelKey: TranslationKey; icon: string }[] = [
-  { href: '/dashboard', labelKey: 'nav.dashboard', icon: '📊' },
-  { href: '/expenses/new', labelKey: 'nav.add', icon: '➕' },
-  { href: '/expenses', labelKey: 'nav.history', icon: '📋' },
+const NAV_ITEMS = [
+  { href: '/dashboard', label: 'Dashboard', icon: '📊' },
+  { href: '/expenses/new', label: 'Add', icon: '➕' },
+  { href: '/expenses', label: 'History', icon: '📋' },
 ];
 
 export default function Navigation() {
   const pathname = usePathname();
-  const { t } = useI18n();
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
@@ -29,7 +26,7 @@ export default function Navigation() {
             }`}
           >
             <span className="text-xl">{item.icon}</span>
-            <span>{t(item.labelKey)}</span>
+            <span>{item.label}</span>
           </Link>
         ))}
       </div>
