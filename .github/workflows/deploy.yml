@@ -17,5 +17,20 @@ jobs:
           node-version: '20'
       - run: npm ci
       - run: npm install --global vercel@latest
-      - name: Deploy
-        run: vercel --prod --yes --token=$VERCEL_TOKEN
+      - name: Deploy and capture output
+        id: deploy
+        continue-on-error: true
+        run: |
+          vercel --prod --yes --token=$VERCEL_TOKEN 2>&1 | tee /tmp/vercel-output.txt
+          echo "EXIT_CODE=$?" >> $GITHUB_ENV
+      - name: Report result
+        if: always()
+        run: |
+          echo "::group::Vercel Output"
+          cat /tmp/vercel-output.txt || echo "No output file"
+          echo "::endgroup::"
+          LAST_LINES=$(tail -20 /tmp/vercel-output.txt 2>/dev/null || echo "empty")
+          echo "## Deploy Result" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "$LAST_LINES" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
