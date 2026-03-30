@@ -75,3 +75,69 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json(data);
 }
+
+export async function PUT(request: NextRequest) {
+  const body = await request.json();
+  const { id, paid_by, amount, currency, description, split_between, member_id } = body;
+
+  if (!id || !paid_by || !amount || !currency || !description) {
+    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+  }
+
+  const supabase = getSupabase();
+
+  // Verify the expense belongs to the member editing it
+  const { data: existing } = await supabase
+    .from('expenses')
+    .select('paid_by')
+    .eq('id', id)
+    .single();
+
+  if (!existing || existing.paid_by !== member_id) {
+    return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
+  }
+
+  const { data, error } = await supabase
+    .from('expenses')
+    .update({ paid_by, amount, currency, description, split_between: split_between || null })
+    .eq('id', id)
+    .select('*, member:members!paid_by(*)')
+    .single();
+
+  if (error) {
+    return NextResponse.json({ error: 'Failed to update expense' }, { status: 500 });
+  }
+
+  return NextResponse.json(data);
+}
+
+export async function DELETE(request: NextRequest) {
+  const { id, member_id } = await request.json();
+
+  if (!id) {
+    return NextResponse.json({ error: 'Missing expense id' }, { status: 400 });
+  }
+
+  const supabase = getSupabase();
+
+  const { data: existing } = await supabase
+    .from('expenses')
+    .select('paid_by')
+    .eq('id', id)
+    .single();
+
+  if (!existing || existing.paid_by !== member_id) {
+    return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
+  }
+
+  const { error } = await supabase
+    .from('expenses')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    return NextResponse.json({ error: 'Failed to delete expense' }, { status: 500 });
+  }
+
+  return NextResponse.json({ ok: true });
+}

@@ -4,12 +4,15 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navigation from '@/components/Navigation';
 import SettlementList from '@/components/SettlementList';
+import LangSwitcher from '@/components/LangSwitcher';
+import { useI18n } from '@/lib/useI18n';
 import { calculateBalances, calculateSettlements } from '@/lib/settlements';
 import { formatAmount } from '@/lib/currencies';
 import type { Expense, Member, Settlement, MemberBalance } from '@/types';
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { lang, setLang, t } = useI18n();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
   const [settlements, setSettlements] = useState<Settlement[]>([]);
@@ -64,7 +67,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-500">Loading...</p>
+        <p className="text-gray-500">{t('loading')}</p>
       </div>
     );
   }
@@ -74,14 +77,20 @@ export default function DashboardPage() {
     totalsByCurrency[e.currency] = (totalsByCurrency[e.currency] ?? 0) + e.amount;
   }
 
+  const expCount = expenses.length;
+  const memCount = members.length;
+
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       <header className="bg-white border-b border-gray-200 px-4 py-4">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <h1 className="text-xl font-bold text-gray-900">{groupName}</h1>
-          <button onClick={handleLogout} className="text-sm text-gray-500 hover:text-gray-700">
-            Leave
-          </button>
+          <div className="flex items-center gap-3">
+            <LangSwitcher lang={lang} onChange={setLang} />
+            <button onClick={handleLogout} className="text-sm text-gray-500 hover:text-gray-700">
+              {t('leave')}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -89,29 +98,29 @@ export default function DashboardPage() {
         {/* Total Spent */}
         <section className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5">
           <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
-            Total Spent
+            {t('totalSpent')}
           </h2>
           {Object.keys(totalsByCurrency).length === 0 ? (
-            <p className="text-gray-400">No expenses yet</p>
+            <p className="text-gray-400">{t('noExpensesYet')}</p>
           ) : (
             <div className="space-y-1">
-              {Object.entries(totalsByCurrency).map(([currency, total]) => (
-                <p key={currency} className="text-2xl font-bold text-gray-900">
-                  {formatAmount(total, currency)}
+              {Object.entries(totalsByCurrency).map(([cur, total]) => (
+                <p key={cur} className="text-2xl font-bold text-gray-900">
+                  {formatAmount(total, cur)}
                 </p>
               ))}
             </div>
           )}
           <p className="text-sm text-gray-500 mt-2">
-            {expenses.length} expense{expenses.length !== 1 ? 's' : ''} &middot; {members.length} member{members.length !== 1 ? 's' : ''}
+            {expCount} {expCount !== 1 ? t('expenses') : t('expense')} &middot; {memCount} {memCount !== 1 ? t('members') : t('member')}
           </p>
         </section>
 
         {/* Per-Person Breakdown */}
-        {Object.entries(balances).map(([currency, currencyBalances]) => (
-          <section key={currency} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5">
+        {Object.entries(balances).map(([cur, currencyBalances]) => (
+          <section key={cur} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5">
             <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
-              Breakdown ({currency})
+              {t('breakdown')} ({cur})
             </h2>
             <div className="space-y-3">
               {currencyBalances.map(b => (
@@ -119,7 +128,7 @@ export default function DashboardPage() {
                   <div>
                     <p className="font-medium text-gray-900">{b.member.name}</p>
                     <p className="text-xs text-gray-500">
-                      Paid {formatAmount(b.totalPaid, currency)} / Share {formatAmount(b.fairShare, currency)}
+                      {t('paid')} {formatAmount(b.totalPaid, cur)} / {t('share')} {formatAmount(b.fairShare, cur)}
                     </p>
                   </div>
                   <span
@@ -132,7 +141,7 @@ export default function DashboardPage() {
                     }`}
                   >
                     {b.balance > 0 ? '+' : ''}
-                    {formatAmount(b.balance, currency)}
+                    {formatAmount(b.balance, cur)}
                   </span>
                 </div>
               ))}
@@ -143,9 +152,9 @@ export default function DashboardPage() {
         {/* Settlements */}
         <section className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5">
           <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
-            Settlements
+            {t('settlements')}
           </h2>
-          <SettlementList settlements={settlements} />
+          <SettlementList settlements={settlements} allSettledText={t('allSettled')} />
         </section>
       </main>
 

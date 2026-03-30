@@ -5,13 +5,14 @@ import type { Settlement } from '@/types';
 
 interface SettlementListProps {
   settlements: Settlement[];
+  allSettledText?: string;
 }
 
-export default function SettlementList({ settlements }: SettlementListProps) {
+export default function SettlementList({ settlements, allSettledText = 'All settled up!' }: SettlementListProps) {
   if (settlements.length === 0) {
     return (
       <p className="text-gray-500 text-sm text-center py-4">
-        All settled up!
+        {allSettledText}
       </p>
     );
   }

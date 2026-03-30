@@ -4,11 +4,14 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Member } from '@/types';
 import CurrencySelector from '@/components/CurrencySelector';
+import LangSwitcher from '@/components/LangSwitcher';
+import { useI18n } from '@/lib/useI18n';
 
 type Step = 'pin' | 'select-member' | 'create-group';
 
 export default function HomePage() {
   const router = useRouter();
+  const { lang, setLang, t } = useI18n();
   const [step, setStep] = useState<Step>('pin');
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
@@ -35,7 +38,7 @@ export default function HomePage() {
       });
 
       if (!res.ok) {
-        setError('Invalid PIN');
+        setError(t('invalidPin'));
         return;
       }
 
@@ -47,7 +50,7 @@ export default function HomePage() {
       setMembers(data.members);
       setStep('select-member');
     } catch {
-      setError('Connection error');
+      setError(t('connectionError'));
     } finally {
       setLoading(false);
     }
@@ -76,7 +79,7 @@ export default function HomePage() {
         handleSelectMember(member);
       }
     } catch {
-      setError('Failed to create member');
+      setError(t('failedCreate'));
     } finally {
       setLoading(false);
     }
@@ -101,7 +104,7 @@ export default function HomePage() {
 
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error || 'Failed to create group');
+        setError(data.error || t('failedCreate'));
         return;
       }
 
@@ -113,7 +116,7 @@ export default function HomePage() {
       setMembers([]);
       setStep('select-member');
     } catch {
-      setError('Connection error');
+      setError(t('connectionError'));
     } finally {
       setLoading(false);
     }
@@ -123,8 +126,11 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Trip Expenses</h1>
-          <p className="text-gray-500 mt-2">Track group spending together</p>
+          <div className="flex justify-center mb-4">
+            <LangSwitcher lang={lang} onChange={setLang} />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900">{t('appTitle')}</h1>
+          <p className="text-gray-500 mt-2">{t('appSubtitle')}</p>
         </div>
 
         {step === 'pin' && (
@@ -132,7 +138,7 @@ export default function HomePage() {
             <form onSubmit={handleVerifyPin} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Enter group PIN
+                  {t('enterPin')}
                 </label>
                 <input
                   type="password"
@@ -149,7 +155,7 @@ export default function HomePage() {
                 disabled={loading || !pin}
                 className="w-full bg-blue-600 text-white rounded-lg py-3 font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
               >
-                {loading ? 'Checking...' : 'Join Group'}
+                {loading ? t('checking') : t('joinGroup')}
               </button>
             </form>
             <div className="mt-4 text-center">
@@ -157,7 +163,7 @@ export default function HomePage() {
                 onClick={() => setStep('create-group')}
                 className="text-sm text-blue-600 hover:underline"
               >
-                Create new group
+                {t('createNewGroup')}
               </button>
             </div>
           </div>
@@ -165,11 +171,11 @@ export default function HomePage() {
 
         {step === 'create-group' && (
           <div className="bg-white rounded-2xl shadow-lg p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Create Group</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('createGroup')}</h2>
             <form onSubmit={handleCreateGroup} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Group name
+                  {t('groupName')}
                 </label>
                 <input
                   type="text"
@@ -182,7 +188,7 @@ export default function HomePage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  PIN code (min 4 chars)
+                  {t('pinCode')}
                 </label>
                 <input
                   type="password"
@@ -194,7 +200,7 @@ export default function HomePage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Default currency
+                  {t('defaultCurrency')}
                 </label>
                 <CurrencySelector value={currency} onChange={setCurrency} className="w-full" />
               </div>
@@ -204,7 +210,7 @@ export default function HomePage() {
                 disabled={loading || !groupName.trim() || newPin.length < 4}
                 className="w-full bg-blue-600 text-white rounded-lg py-3 font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
               >
-                {loading ? 'Creating...' : 'Create Group'}
+                {loading ? t('creating') : t('createGroup')}
               </button>
             </form>
             <div className="mt-4 text-center">
@@ -212,7 +218,7 @@ export default function HomePage() {
                 onClick={() => { setStep('pin'); setError(''); }}
                 className="text-sm text-blue-600 hover:underline"
               >
-                Join existing group
+                {t('joinExisting')}
               </button>
             </div>
           </div>
@@ -220,7 +226,7 @@ export default function HomePage() {
 
         {step === 'select-member' && (
           <div className="bg-white rounded-2xl shadow-lg p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Who are you?</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('whoAreYou')}</h2>
 
             {members.length > 0 && (
               <div className="space-y-2 mb-6">
@@ -242,7 +248,7 @@ export default function HomePage() {
                   type="text"
                   value={newName}
                   onChange={e => setNewName(e.target.value)}
-                  placeholder="Your name"
+                  placeholder={t('yourName')}
                   className="flex-1 rounded-lg border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <button
@@ -250,7 +256,7 @@ export default function HomePage() {
                   disabled={loading || !newName.trim()}
                   className="bg-blue-600 text-white rounded-lg px-4 py-3 font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
                 >
-                  Join
+                  {t('join')}
                 </button>
               </div>
             </form>
