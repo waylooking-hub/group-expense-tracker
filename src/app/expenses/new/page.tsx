@@ -132,7 +132,7 @@ export default function NewExpensePage() {
                 autoFocus
                 required
               />
-              <CurrencySelector value={currency} onChange={setCurrency} />
+              <CurrencySelector value={currency} onChange={setCurrency} otherLabel={t('otherCurrency')} />
             </div>
           </div>
 

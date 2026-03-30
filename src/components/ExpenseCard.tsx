@@ -121,7 +121,7 @@ export default function ExpenseCard({ expense, members, currentMemberId, t, onUp
             onChange={e => setAmount(e.target.value)}
             className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <CurrencySelector value={currency} onChange={setCurrency} />
+          <CurrencySelector value={currency} onChange={setCurrency} otherLabel={t('otherCurrency')} />
         </div>
         <input
           type="text"

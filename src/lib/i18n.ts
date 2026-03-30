@@ -80,6 +80,7 @@ const t = {
   loading: { uk: 'Завантаження...', en: 'Loading...', pl: 'Ładowanie...' },
   connectionError: { uk: 'Помилка з\'єднання', en: 'Connection error', pl: 'Błąd połączenia' },
   failedCreate: { uk: 'Не вдалося створити', en: 'Failed to create', pl: 'Nie udało się utworzyć' },
+  otherCurrency: { uk: 'Інша...', en: 'Other...', pl: 'Inna...' },
 } as const;
 
 export type TKey = keyof typeof t;

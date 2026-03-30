@@ -202,7 +202,7 @@ export default function HomePage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   {t('defaultCurrency')}
                 </label>
-                <CurrencySelector value={currency} onChange={setCurrency} className="w-full" />
+                <CurrencySelector value={currency} onChange={setCurrency} className="w-full" otherLabel={t('otherCurrency')} />
               </div>
               {error && <p className="text-red-500 text-sm text-center">{error}</p>}
               <button

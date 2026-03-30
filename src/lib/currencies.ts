@@ -1,16 +1,13 @@
 export interface Currency {
   code: string;
   symbol: string;
-  name: string;
 }
 
 export const CURRENCIES: Currency[] = [
-  { code: 'PLN', symbol: 'zł', name: 'Polish Zloty' },
-  { code: 'EUR', symbol: '€', name: 'Euro' },
-  { code: 'USD', symbol: '$', name: 'US Dollar' },
-  { code: 'UAH', symbol: '₴', name: 'Ukrainian Hryvnia' },
-  { code: 'CZK', symbol: 'Kč', name: 'Czech Koruna' },
-  { code: 'GBP', symbol: '£', name: 'British Pound' },
+  { code: 'PLN', symbol: 'zł' },
+  { code: 'EUR', symbol: '€' },
+  { code: 'USD', symbol: '$' },
+  { code: 'UAH', symbol: '₴' },
 ];
 
 export function getCurrencySymbol(code: string): string {
