@@ -15,6 +15,10 @@ export default function ExpenseCard({ expense }: ExpenseCardProps) {
     minute: '2-digit',
   });
 
+  const splitNames = expense.split_members && expense.split_members.length > 0
+    ? expense.split_members.map(m => m.name).join(', ')
+    : null;
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
       <div className="flex justify-between items-start">
@@ -23,11 +27,21 @@ export default function ExpenseCard({ expense }: ExpenseCardProps) {
           <p className="text-sm text-gray-500 mt-1">
             {expense.member?.name ?? 'Unknown'} &middot; {date}
           </p>
+          {splitNames && (
+            <p className="text-xs text-blue-600 mt-1">
+              For: {splitNames}
+            </p>
+          )}
         </div>
         <div className="text-right ml-3">
           <p className="font-bold text-lg text-gray-900">
             {formatAmount(expense.amount, expense.currency)}
           </p>
+          {splitNames && expense.split_members && (
+            <p className="text-xs text-gray-400">
+              {formatAmount(expense.amount / expense.split_members.length, expense.currency)} each
+            </p>
+          )}
         </div>
       </div>
       {expense.receipt_url && (

@@ -18,6 +18,8 @@ export default function NewExpensePage() {
   const [description, setDescription] = useState('');
   const [paidBy, setPaidBy] = useState('');
   const [receipt, setReceipt] = useState<File | null>(null);
+  const [splitMode, setSplitMode] = useState<'all' | 'custom'>('all');
+  const [selectedMembers, setSelectedMembers] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const groupId = localStorage.getItem('groupId');
@@ -37,9 +39,27 @@ export default function NewExpensePage() {
       .finally(() => setLoading(false));
   }, [router]);
 
+  function toggleMember(id: string) {
+    setSelectedMembers(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
+
+    if (splitMode === 'custom' && selectedMembers.size === 0) {
+      setError('Select at least one person');
+      return;
+    }
+
     setSubmitting(true);
 
     const groupId = localStorage.getItem('groupId');
@@ -53,6 +73,9 @@ export default function NewExpensePage() {
     formData.append('description', description);
     if (receipt) {
       formData.append('receipt', receipt);
+    }
+    if (splitMode === 'custom') {
+      formData.append('split_among', JSON.stringify([...selectedMembers]));
     }
 
     try {
@@ -137,6 +160,62 @@ export default function NewExpensePage() {
                 <option key={m.id} value={m.id}>{m.name}</option>
               ))}
             </select>
+          </div>
+
+          {/* Split Among */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Split among</label>
+            <div className="flex gap-2 mb-3">
+              <button
+                type="button"
+                onClick={() => setSplitMode('all')}
+                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium border transition-colors ${
+                  splitMode === 'all'
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                Everyone
+              </button>
+              <button
+                type="button"
+                onClick={() => setSplitMode('custom')}
+                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium border transition-colors ${
+                  splitMode === 'custom'
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                Select people
+              </button>
+            </div>
+            {splitMode === 'custom' && (
+              <div className="space-y-2">
+                {members.map(m => (
+                  <label
+                    key={m.id}
+                    className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                      selectedMembers.has(m.id)
+                        ? 'bg-blue-50 border-blue-300'
+                        : 'bg-white border-gray-200 hover:bg-gray-50'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedMembers.has(m.id)}
+                      onChange={() => toggleMember(m.id)}
+                      className="w-5 h-5 rounded text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="font-medium text-gray-900">{m.name}</span>
+                  </label>
+                ))}
+                {selectedMembers.size > 0 && amount && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    {(parseFloat(amount) / selectedMembers.size).toFixed(2)} {currency} per person
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Receipt */}

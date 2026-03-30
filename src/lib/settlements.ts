@@ -6,19 +6,40 @@ export function calculateBalances(
   currency: string
 ): MemberBalance[] {
   const currencyExpenses = expenses.filter(e => e.currency === currency);
-  const totalSpent = currencyExpenses.reduce((sum, e) => sum + e.amount, 0);
-  const fairShare = members.length > 0 ? totalSpent / members.length : 0;
+
+  // Track how much each member paid and owes
+  const paid = new Map<string, number>();
+  const owes = new Map<string, number>();
+
+  for (const m of members) {
+    paid.set(m.id, 0);
+    owes.set(m.id, 0);
+  }
+
+  for (const expense of currencyExpenses) {
+    // Add to payer's total
+    paid.set(expense.paid_by, (paid.get(expense.paid_by) ?? 0) + expense.amount);
+
+    // Determine who this expense is split among
+    const splitIds = expense.split_among && expense.split_among.length > 0
+      ? expense.split_among
+      : members.map(m => m.id);
+
+    const share = expense.amount / splitIds.length;
+    for (const id of splitIds) {
+      owes.set(id, (owes.get(id) ?? 0) + share);
+    }
+  }
 
   return members.map(member => {
-    const paid = currencyExpenses
-      .filter(e => e.paid_by === member.id)
-      .reduce((sum, e) => sum + e.amount, 0);
+    const totalPaid = paid.get(member.id) ?? 0;
+    const totalOwed = owes.get(member.id) ?? 0;
 
     return {
       member,
-      totalPaid: paid,
-      fairShare,
-      balance: paid - fairShare,
+      totalPaid,
+      fairShare: totalOwed,
+      balance: totalPaid - totalOwed,
     };
   });
 }

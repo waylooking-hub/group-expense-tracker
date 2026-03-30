@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
 
   const supabase = getSupabase();
 
-  const { data, error } = await supabase
+  const { data: expenses, error } = await supabase
     .from('expenses')
     .select('*, member:members!paid_by(*)')
     .eq('group_id', groupId)
@@ -20,7 +20,32 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Database error' }, { status: 500 });
   }
 
-  return NextResponse.json(data);
+  // Fetch splits for all expenses
+  const expenseIds = expenses.map((e: { id: string }) => e.id);
+  const { data: splits } = await supabase
+    .from('expense_splits')
+    .select('expense_id, member_id, member:members(*)')
+    .in('expense_id', expenseIds.length > 0 ? expenseIds : ['none']);
+
+  // Attach splits to expenses
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const splitsMap = new Map<string, any[]>();
+  for (const s of (splits ?? []) as { expense_id: string; member_id: string; member: unknown }[]) {
+    const list = splitsMap.get(s.expense_id) ?? [];
+    list.push(s);
+    splitsMap.set(s.expense_id, list);
+  }
+
+  const enriched = expenses.map((e: { id: string }) => {
+    const expSplits = splitsMap.get(e.id) ?? [];
+    return {
+      ...e,
+      split_among: expSplits.map(s => s.member_id),
+      split_members: expSplits.map(s => s.member),
+    };
+  });
+
+  return NextResponse.json(enriched);
 }
 
 export async function POST(request: NextRequest) {
@@ -31,6 +56,7 @@ export async function POST(request: NextRequest) {
   const currency = formData.get('currency') as string;
   const description = formData.get('description') as string;
   const receipt = formData.get('receipt') as File | null;
+  const splitAmong = formData.get('split_among') as string | null;
 
   if (!group_id || !paid_by || !amount || !currency || !description) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -68,5 +94,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to create expense' }, { status: 500 });
   }
 
-  return NextResponse.json(data);
+  // Save splits if specific members selected (not "all")
+  const memberIds: string[] = splitAmong ? JSON.parse(splitAmong) : [];
+  if (memberIds.length > 0) {
+    const rows = memberIds.map(member_id => ({
+      expense_id: data.id,
+      member_id,
+    }));
+    await supabase.from('expense_splits').insert(rows);
+  }
+
+  return NextResponse.json({ ...data, split_among: memberIds });
 }
