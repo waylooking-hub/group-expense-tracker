@@ -16,7 +16,7 @@ const t = {
   // Create group
   createGroup: { uk: 'Створити групу', en: 'Create Group', pl: 'Utwórz grupę' },
   groupName: { uk: 'Назва групи', en: 'Group name', pl: 'Nazwa grupy' },
-  pinCode: { uk: 'PIN-код (мін. 4 символи)', en: 'PIN code (min 4 chars)', pl: 'Kod PIN (min 4 znaki)' },
+  pinCode: { uk: 'PIN-код (мін. 4 символи)', en: 'PIN code (min 4 chars)', pl: 'Kod PIN (min. 4 znaki)' },
   defaultCurrency: { uk: 'Валюта за замовчуванням', en: 'Default currency', pl: 'Domyślna waluta' },
   creating: { uk: 'Створення...', en: 'Creating...', pl: 'Tworzenie...' },
 
@@ -33,10 +33,10 @@ const t = {
   members: { uk: 'учасників', en: 'members', pl: 'członków' },
   member: { uk: 'учасник', en: 'member', pl: 'członek' },
   breakdown: { uk: 'Деталі', en: 'Breakdown', pl: 'Podział' },
-  paid: { uk: 'Заплатив', en: 'Paid', pl: 'Zapłacił' },
+  paid: { uk: 'Сплатив', en: 'Paid', pl: 'Zapłacił' },
   share: { uk: 'Частка', en: 'Share', pl: 'Udział' },
   settlements: { uk: 'Розрахунки', en: 'Settlements', pl: 'Rozliczenia' },
-  allSettled: { uk: 'Все розраховано!', en: 'All settled up!', pl: 'Wszystko rozliczone!' },
+  allSettled: { uk: 'Усе розраховано!', en: 'All settled up!', pl: 'Wszystko rozliczone!' },
   leave: { uk: 'Вийти', en: 'Leave', pl: 'Wyjdź' },
 
   // Add expense
@@ -44,28 +44,28 @@ const t = {
   amount: { uk: 'Сума', en: 'Amount', pl: 'Kwota' },
   description: { uk: 'Опис', en: 'Description', pl: 'Opis' },
   descriptionPlaceholder: { uk: 'Вечеря, таксі, продукти...', en: 'Dinner, taxi, groceries...', pl: 'Kolacja, taxi, zakupy...' },
-  paidBy: { uk: 'Хто заплатив', en: 'Paid by', pl: 'Zapłacił' },
-  splitAmong: { uk: 'Розділити між', en: 'Split among', pl: 'Podziel między' },
-  everyone: { uk: 'Усіма', en: 'Everyone', pl: 'Wszystkimi' },
-  selectPeople: { uk: 'Обрати людей', en: 'Select people', pl: 'Wybierz osoby' },
-  perPerson: { uk: 'на людину', en: 'per person', pl: 'na osobę' },
+  paidBy: { uk: 'Хто заплатив', en: 'Paid by', pl: 'Kto zapłacił' },
+  splitAmong: { uk: 'Розділити', en: 'Split among', pl: 'Podziel' },
+  everyone: { uk: 'За всіх', en: 'Everyone', pl: 'Wszyscy' },
+  selectPeople: { uk: 'Обрані', en: 'Select', pl: 'Wybrani' },
+  perPerson: { uk: 'на особу', en: 'per person', pl: 'na osobę' },
   selectAtLeastOne: { uk: 'Оберіть хоча б одну людину', en: 'Select at least one person', pl: 'Wybierz co najmniej jedną osobę' },
-  receiptPhoto: { uk: 'Фото чеку (необов\'язково)', en: 'Receipt photo (optional)', pl: 'Zdjęcie paragonu (opcjonalne)' },
-  adding: { uk: 'Додавання...', en: 'Adding...', pl: 'Dodawanie...' },
+  receiptPhoto: { uk: 'Фото чеку (необов\'язково)', en: 'Receipt photo (optional)', pl: 'Zdjęcie paragonu (opcjonalnie)' },
+  adding: { uk: 'Додаю...', en: 'Adding...', pl: 'Dodaję...' },
 
   // Edit expense
   editExpense: { uk: 'Редагувати витрату', en: 'Edit Expense', pl: 'Edytuj wydatek' },
-  saving: { uk: 'Збереження...', en: 'Saving...', pl: 'Zapisywanie...' },
+  saving: { uk: 'Зберігаю...', en: 'Saving...', pl: 'Zapisuję...' },
   save: { uk: 'Зберегти', en: 'Save', pl: 'Zapisz' },
-  cancel: { uk: 'Скасувати', en: 'Cancel', pl: 'Anuluj' },
+  cancel: { uk: 'Назад', en: 'Cancel', pl: 'Anuluj' },
   delete: { uk: 'Видалити', en: 'Delete', pl: 'Usuń' },
   deleteConfirm: { uk: 'Точно видалити цю витрату?', en: 'Delete this expense?', pl: 'Usunąć ten wydatek?' },
 
   // Expense card
   forMembers: { uk: 'За', en: 'For', pl: 'Za' },
-  each: { uk: 'кожному', en: 'each', pl: 'każdy' },
-  viewReceipt: { uk: 'Переглянути чек', en: 'View receipt', pl: 'Zobacz paragon' },
-  edit: { uk: 'Редагувати', en: 'Edit', pl: 'Edytuj' },
+  each: { uk: 'кожний', en: 'each', pl: 'każdy' },
+  viewReceipt: { uk: 'Чек', en: 'Receipt', pl: 'Paragon' },
+  edit: { uk: 'Змінити', en: 'Edit', pl: 'Edytuj' },
 
   // Nav
   navDashboard: { uk: 'Головна', en: 'Dashboard', pl: 'Panel' },

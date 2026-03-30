@@ -186,23 +186,23 @@ export default function ExpenseCard({ expense, members, currentMemberId, t, onUp
 
         {error && <p className="text-red-500 text-xs">{error}</p>}
 
-        <div className="flex gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <button
             onClick={handleSave}
             disabled={saving || !amount || !description}
-            className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+            className="bg-blue-600 text-white rounded-lg py-2 text-xs font-medium hover:bg-blue-700 disabled:opacity-50"
           >
             {saving ? t('saving') : t('save')}
           </button>
           <button
             onClick={() => setEditing(false)}
-            className="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+            className="py-2 text-xs text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
           >
             {t('cancel')}
           </button>
           <button
             onClick={handleDelete}
-            className="px-4 py-2 text-sm text-red-600 border border-red-300 rounded-lg hover:bg-red-50"
+            className="py-2 text-xs text-red-600 border border-red-300 rounded-lg hover:bg-red-50"
           >
             {t('delete')}
           </button>
