@@ -27,23 +27,14 @@ create table if not exists expenses (
   currency text not null default 'PLN',
   description text not null,
   receipt_url text,
+  split_between uuid[] default null,
   created_at timestamptz default now()
-);
-
--- Expense splits: who each expense is split among
--- If no rows for an expense, it's split equally among ALL members
-create table if not exists expense_splits (
-  id uuid primary key default gen_random_uuid(),
-  expense_id uuid not null references expenses(id) on delete cascade,
-  member_id uuid not null references members(id) on delete cascade,
-  unique(expense_id, member_id)
 );
 
 -- Indexes
 create index if not exists idx_members_group_id on members(group_id);
 create index if not exists idx_expenses_group_id on expenses(group_id);
 create index if not exists idx_expenses_paid_by on expenses(paid_by);
-create index if not exists idx_expense_splits_expense_id on expense_splits(expense_id);
 
 -- Disable RLS (simple app with PIN-based access, no Supabase Auth)
 alter table groups enable row level security;
@@ -54,9 +45,6 @@ alter table expenses enable row level security;
 create policy "Allow all on groups" on groups for all using (true) with check (true);
 create policy "Allow all on members" on members for all using (true) with check (true);
 create policy "Allow all on expenses" on expenses for all using (true) with check (true);
-
-alter table expense_splits enable row level security;
-create policy "Allow all on expense_splits" on expense_splits for all using (true) with check (true);
 
 -- Storage: Create 'receipts' bucket in Supabase Dashboard
 -- Settings: Public bucket, allow image uploads

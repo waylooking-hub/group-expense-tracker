@@ -75,7 +75,7 @@ export default function NewExpensePage() {
       formData.append('receipt', receipt);
     }
     if (splitMode === 'custom') {
-      formData.append('split_among', JSON.stringify([...selectedMembers]));
+      formData.append('split_between', JSON.stringify([...selectedMembers]));
     }
 
     try {

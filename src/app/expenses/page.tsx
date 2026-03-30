@@ -4,11 +4,12 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navigation from '@/components/Navigation';
 import ExpenseCard from '@/components/ExpenseCard';
-import type { ExpenseWithMember } from '@/types';
+import type { ExpenseWithMember, Member } from '@/types';
 
 export default function ExpensesPage() {
   const router = useRouter();
   const [expenses, setExpenses] = useState<ExpenseWithMember[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,9 +19,14 @@ export default function ExpensesPage() {
       return;
     }
 
-    fetch(`/api/expenses?groupId=${groupId}`)
-      .then(res => res.json())
-      .then(setExpenses)
+    Promise.all([
+      fetch(`/api/expenses?groupId=${groupId}`).then(r => r.json()),
+      fetch(`/api/members?groupId=${groupId}`).then(r => r.json()),
+    ])
+      .then(([expData, memData]) => {
+        setExpenses(expData);
+        setMembers(memData);
+      })
       .finally(() => setLoading(false));
   }, [router]);
 
@@ -54,7 +60,7 @@ export default function ExpensesPage() {
         ) : (
           <div className="space-y-3">
             {expenses.map(expense => (
-              <ExpenseCard key={expense.id} expense={expense} />
+              <ExpenseCard key={expense.id} expense={expense} members={members} />
             ))}
           </div>
         )}

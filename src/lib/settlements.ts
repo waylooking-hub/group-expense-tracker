@@ -7,7 +7,6 @@ export function calculateBalances(
 ): MemberBalance[] {
   const currencyExpenses = expenses.filter(e => e.currency === currency);
 
-  // Track how much each member paid and owes
   const paid = new Map<string, number>();
   const owes = new Map<string, number>();
 
@@ -17,12 +16,11 @@ export function calculateBalances(
   }
 
   for (const expense of currencyExpenses) {
-    // Add to payer's total
     paid.set(expense.paid_by, (paid.get(expense.paid_by) ?? 0) + expense.amount);
 
-    // Determine who this expense is split among
-    const splitIds = expense.split_among && expense.split_among.length > 0
-      ? expense.split_among
+    // split_between: array of member IDs, or null = everyone
+    const splitIds = expense.split_between && expense.split_between.length > 0
+      ? expense.split_between
       : members.map(m => m.id);
 
     const share = expense.amount / splitIds.length;

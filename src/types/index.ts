@@ -21,13 +21,12 @@ export interface Expense {
   currency: string;
   description: string;
   receipt_url: string | null;
+  split_between: string[] | null; // member UUIDs; null = split among all
   created_at: string;
-  split_among?: string[]; // member IDs; empty = split among all
 }
 
 export interface ExpenseWithMember extends Expense {
   member: Member;
-  split_members?: Member[];
 }
 
 export interface Settlement {

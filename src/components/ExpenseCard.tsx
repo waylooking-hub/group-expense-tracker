@@ -1,13 +1,14 @@
 'use client';
 
 import { formatAmount } from '@/lib/currencies';
-import type { ExpenseWithMember } from '@/types';
+import type { ExpenseWithMember, Member } from '@/types';
 
 interface ExpenseCardProps {
   expense: ExpenseWithMember;
+  members: Member[];
 }
 
-export default function ExpenseCard({ expense }: ExpenseCardProps) {
+export default function ExpenseCard({ expense, members }: ExpenseCardProps) {
   const date = new Date(expense.created_at).toLocaleDateString('uk-UA', {
     day: 'numeric',
     month: 'short',
@@ -15,9 +16,15 @@ export default function ExpenseCard({ expense }: ExpenseCardProps) {
     minute: '2-digit',
   });
 
-  const splitNames = expense.split_members && expense.split_members.length > 0
-    ? expense.split_members.map(m => m.name).join(', ')
+  // Resolve split_between UUIDs to names
+  const splitNames = expense.split_between && expense.split_between.length > 0
+    ? expense.split_between
+        .map(id => members.find(m => m.id === id)?.name)
+        .filter(Boolean)
+        .join(', ')
     : null;
+
+  const splitCount = expense.split_between?.length || members.length;
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
@@ -37,9 +44,9 @@ export default function ExpenseCard({ expense }: ExpenseCardProps) {
           <p className="font-bold text-lg text-gray-900">
             {formatAmount(expense.amount, expense.currency)}
           </p>
-          {splitNames && expense.split_members && (
+          {splitNames && (
             <p className="text-xs text-gray-400">
-              {formatAmount(expense.amount / expense.split_members.length, expense.currency)} each
+              {formatAmount(expense.amount / splitCount, expense.currency)} each
             </p>
           )}
         </div>
